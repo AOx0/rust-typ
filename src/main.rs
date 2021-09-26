@@ -7,7 +7,7 @@ use std::fs::OpenOptions;
 fn main() {
     let matches = App::new("typ")
         .about("Open files with Typora from the terminal")
-        .version("v1.0")
+        .version("v1.1")
         .arg(Arg::with_name("file")
             .required(true)
             .display_order(0)
@@ -34,28 +34,8 @@ fn main() {
 
     if Path::new(&file).exists() {
 
-        let command = format!(r#"
-            if application "Typora" is running then
-                tell application "System Events"
-                    tell process "Typora"
-                        set frontmost to true
-                    end tell
-                    tell application "Typora"
-                        open "{0}"
-                    end tell
-                end tell
-            else
-                tell application "Typora" to activate
-                tell application "System Events"
-                    tell process "Typora"
-                        set frontmost to true
-                    end tell
-                    tell application "Typora"
-                        open "{0}"
-                    end tell
-                end tell
-            end if
-        "#, path.canonicalize().unwrap().display());
+        let command = include_str!("./script.scpt");
+        let command = command.replace("FILE", path.canonicalize().unwrap().to_str().unwrap());
     
     
         let mut child_stdin = Command::new("osascript")
